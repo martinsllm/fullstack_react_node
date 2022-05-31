@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["mongoDb"]
+}
+
+datasource db {
+  provider = "mongodb"
+  url  = env("DATABASE_URL")
+}
+
+model User {
+  id  String @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  name String @unique
+  dataNascimento String
+  email String @unique
+  whats String @unique
+  password String
+  permission Boolean
+}
+
+model Class {
+  id  String @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  name String @unique
+  students Student[]
+}
+
+model Student {
+  id  String @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  name String @unique
+  registration String @unique
+  dataNascimento String
+  class   Class   @relation(fields: [classId], references: [id], onDelete: Cascade)
+  classId String @db.ObjectId
+  photo Photo[]
+  occurrence Occurrence[]
+}
+
+model Photo {
+  id  String @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  url String
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId String @db.ObjectId
+  createdAt DateTime @default(now())
+}
+
+model Article {
+  id  String @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  number String @unique
+  text String
+  item Item[]
+  occurrence Occurrence[]
+}
+
+model Item {
+  id  String @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  number String
+  numberRoman String
+  text String
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleId String @db.ObjectId
+}
+
+model Occurrence {
+  id  String @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  text String
+  sanction String
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId String @db.ObjectId
+  articleId String[] @db.Array(ObjectId)
+  article Article[] @relation(fields: [articleId])
+  createdAt DateTime @default(now())
+}
+
+
